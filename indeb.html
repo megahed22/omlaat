@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>حاسبة العملات الخليجية بالجنيه المصري</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+      direction: rtl;
+    }
+    h1 {
+      color: #006400;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #006400;
+      color: white;
+    }
+    input, select, button {
+      padding: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #006400;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #004d00;
+    }
+    #total {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 15px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<h1>حاسبة العملات الخليجية بالجنيه المصري</h1>
+
+<table id="currencyTable">
+  <tr>
+    <th>المبلغ</th>
+    <th>العملة</th>
+    <th>سعر الصرف</th>
+    <th>المجموع بالجنيه</th>
+    <th>حذف</th>
+  </tr>
+</table>
+
+<button onclick="addRow()">إضافة حوالة جديدة</button>
+<button onclick="calculateTotal()">احسب الإجمالي</button>
+
+<div id="total">الإجمالي الكلي: 0 ج.م</div>
+
+<script>
+  const defaultRates = {
+    OMR: 120,
+    AED: 12,
+    SAR: 12,
+    KWD: 390,
+    QAR: 13,
+    BHD: 320,
+    MAD: 1.5
+  };
+
+  function addRow() {
+    const table = document.getElementById('currencyTable');
+    const row = table.insertRow();
+    
+    // خلية المبلغ
+    const amountCell = row.insertCell(0);
+    const amountInput = document.createElement('input');
+    amountInput.type = 'number';
+    amountInput.step = '0.01'; // للسماح بالكسور العشرية
+    amountInput.min = 0;
+    amountInput.placeholder = 'المبلغ';
+    amountCell.appendChild(amountInput);
+    
+    // خلية العملة
+    const currencyCell = row.insertCell(1);
+    const currencySelect = document.createElement('select');
+    for (const code in defaultRates) {
+      const option = document.createElement('option');
+      option.value = code;
+      option.text = code;
+      currencySelect.appendChild(option);
+    }
+    currencySelect.onchange = function() {
+      rateInput.value = defaultRates[currencySelect.value];
+    }
+    currencyCell.appendChild(currencySelect);
+    
+    // خلية سعر الصرف
+    const rateCell = row.insertCell(2);
+    const rateInput = document.createElement('input');
+    rateInput.type = 'number';
+    rateInput.step = '0.01'; // للسماح بالكسور العشرية
+    rateInput.min = 0;
+    rateInput.value = defaultRates[currencySelect.value];
+    rateCell.appendChild(rateInput);
+    
+    // خلية المجموع بالجنيه
+    const totalCell = row.insertCell(3);
+    totalCell.innerText = '0';
+    
+    // خلية الحذف
+    const deleteCell = row.insertCell(4);
+    const delBtn = document.createElement('button');
+    delBtn.innerText = 'حذف';
+    delBtn.onclick = function() {
+      table.deleteRow(row.rowIndex);
+      calculateTotal();
+    }
+    deleteCell.appendChild(delBtn);
+  }
+
+  function calculateTotal() {
+    const table = document.getElementById('currencyTable');
+    let grandTotal = 0;
+    for (let i = 1; i < table.rows.length; i++) {
+      const row = table.rows[i];
+      const amount = parseFloat(row.cells[0].children[0].value) || 0;
+      const rate = parseFloat(row.cells[2].children[0].value) || 0;
+      const total = amount * rate;
+      row.cells[3].innerText = total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      grandTotal += total;
+    }
+    document.getElementById('total').innerText = `الإجمالي الكلي: ${grandTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} ج.م`;
+  }
+
+  // إضافة صف أول تلقائيًا عند تحميل الصفحة
+  window.onload = addRow;
+</script>
+
+</body>
+</html>
